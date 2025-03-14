@@ -1,0 +1,5 @@
+# jet.conf.yaml
+schema:
+  path: "db/model"
+  dialect: "postgres"
+  package: "model"
