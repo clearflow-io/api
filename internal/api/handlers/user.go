@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -22,6 +21,8 @@ func NewUserHandler(userRepo repositories.UserRepository) *UserHandler {
 }
 
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	type ListUsersRequest struct {
 		Limit  int `json:"limit" validate:"min=1,max=100"`
 		Offset int `json:"offset" validate:"min=0"`
@@ -89,7 +90,5 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdUser)
+	utils.WriteJSON(w, http.StatusCreated, createdUser)
 }
