@@ -21,5 +21,5 @@ type Expense struct {
 	PurchaseDate time.Time
 	BillDate     time.Time
 	Description  string
-	CategoryID   int32
+	CategoryID   *int32
 }

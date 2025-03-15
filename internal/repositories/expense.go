@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
@@ -12,7 +13,7 @@ import (
 
 type ExpenseRepository interface {
 	ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]model.Expense, error)
-	Create(ctx context.Context, userID uuid.UUID, expense *model.Expense) (*model.Expense, error)
+	Create(ctx context.Context, expense *model.Expense) (*model.Expense, error)
 }
 
 type expenseRepository struct {
@@ -35,7 +36,7 @@ func (r *expenseRepository) ListByUser(ctx context.Context, userID uuid.UUID, li
 	).LIMIT(int64(limit)).OFFSET(int64(offset))
 
 	var dest []model.Expense
-	err := query.Query(r.db, &dest)
+	err := query.QueryContext(ctx, r.db, &dest)
 
 	if err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func (r *expenseRepository) ListByUser(ctx context.Context, userID uuid.UUID, li
 	return dest, nil
 }
 
-func (r *expenseRepository) Create(ctx context.Context, userID uuid.UUID, expense *model.Expense) (*model.Expense, error) {
+func (r *expenseRepository) Create(ctx context.Context, expense *model.Expense) (*model.Expense, error) {
 	query := table.Expense.INSERT(
 		table.Expense.UserID,
 		table.Expense.Amount,
@@ -53,17 +54,17 @@ func (r *expenseRepository) Create(ctx context.Context, userID uuid.UUID, expens
 		table.Expense.BillDate,
 		table.Expense.CategoryID,
 	).VALUES(
-		userID,
+		expense.UserID,
 		expense.Amount,
 		expense.Description,
 		expense.PurchaseDate,
 		expense.BillDate,
 		expense.CategoryID,
-	)
+	).RETURNING(table.Expense.AllColumns)
 
-	err := query.Query(r.db, expense)
-
+	err := query.QueryContext(ctx, r.db, expense)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

@@ -16,7 +16,7 @@ CREATE TABLE "expense" (
     "purchase_date" TIMESTAMP(3) NOT NULL,
     "bill_date" TIMESTAMP(3) NOT NULL,
     "description" TEXT NOT NULL,
-    "category_id" INTEGER NOT NULL,
+    "category_id" INTEGER NULL,
 
     CONSTRAINT "expense_pkey" PRIMARY KEY ("id")
 );

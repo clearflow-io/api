@@ -31,7 +31,7 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]model.U
 	).LIMIT(int64(limit)).OFFSET(int64(offset))
 
 	var dest []model.User
-	err := stmt.Query(r.db, &dest)
+	err := stmt.QueryContext(ctx, r.db, &dest)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) (*model.U
 	)
 
 	var createdUser []model.User
-	err := stmt.Query(r.db, &createdUser)
+	err := stmt.QueryContext(ctx, r.db, &createdUser)
 	if err != nil {
 		return nil, err
 	}
