@@ -30,13 +30,15 @@ func main() {
 	// Repositories
 	userRepo := repositories.NewUserRepository(db)
 	expenseRepo := repositories.NewExpenseRepository(db)
+	categoryRepo := repositories.NewCategoryRepository(db)
 
 	// Handlers
 	userHandler := handlers.NewUserHandler(userRepo)
 	expenseHandler := handlers.NewExpenseHandler(expenseRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryRepo)
 
 	// Setup router
-	router := api.SetupRouter(userHandler, expenseHandler)
+	router := api.SetupRouter(userHandler, expenseHandler, categoryHandler)
 
 	// Start server
 	addr := ":" + strconv.Itoa(cfg.Server.Port)

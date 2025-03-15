@@ -10,6 +10,7 @@ import (
 func SetupRouter(
 	userHandler *handlers.UserHandler,
 	expenseHandler *handlers.ExpenseHandler,
+	categoryHandler *handlers.CategoryHandler,
 ) *chi.Mux {
 	r := chi.NewRouter()
 
@@ -24,9 +25,16 @@ func SetupRouter(
 			r.Get("/", userHandler.List)
 			r.Post("/", userHandler.Create)
 
+			// User expense routes
 			r.Route("/{userId}/expenses", func(r chi.Router) {
 				r.Get("/", expenseHandler.ListByUser)
 				r.Post("/", expenseHandler.Create)
+			})
+
+			// User category routes
+			r.Route("/{userId}/categories", func(r chi.Router) {
+				r.Get("/", categoryHandler.ListByUser)
+				r.Post("/", categoryHandler.Create)
 			})
 		})
 

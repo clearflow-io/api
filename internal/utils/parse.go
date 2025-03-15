@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 // ParseQueryParamInt parses a query parameter string into the provided destination.
@@ -30,4 +32,17 @@ func IntPointerToValue(ptr *int) int {
 		return 0 // Default value if nil
 	}
 	return *ptr
+}
+
+func ParseUUID(str, paramName string) (uuid.UUID, error) {
+	if str == "" {
+		return uuid.UUID{}, fmt.Errorf("path parameter %s is required", paramName)
+	}
+
+	parsedUUID, err := uuid.Parse(str)
+	if err != nil {
+		return uuid.UUID{}, fmt.Errorf("invalid path parameter %s format", paramName)
+	}
+
+	return parsedUUID, nil
 }

@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
 	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
@@ -24,15 +22,9 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userIDStr := chi.URLParam(r, "userId")
-	if userIDStr == "" {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{"userId path parameter is required"})
-		return
-	}
-
-	userID, err := uuid.Parse(userIDStr)
+	userID, err := u.ParseUUID(chi.URLParam(r, "userId"), "UserID")
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{"Invalid userId format"})
+		u.WriteJSONError(w, http.StatusBadRequest, []string{err.Error()})
 		return
 	}
 
@@ -67,8 +59,6 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("expenses", expenses)
-
 	u.WriteJSON(w, http.StatusOK, expenses)
 }
 
@@ -76,15 +66,9 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userIDStr := chi.URLParam(r, "userId")
-	if userIDStr == "" {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{"UserID path parameter is required"})
-		return
-	}
-
-	userID, err := uuid.Parse(userIDStr)
+	userID, err := u.ParseUUID(chi.URLParam(r, "userId"), "UserID")
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{"Invalid UserID format"})
+		u.WriteJSONError(w, http.StatusBadRequest, []string{err.Error()})
 		return
 	}
 
