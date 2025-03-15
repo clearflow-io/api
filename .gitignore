@@ -22,3 +22,5 @@ tmp/
 .vscode/
 *.swp
 *.swo
+
+.env

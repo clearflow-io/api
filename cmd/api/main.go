@@ -1,59 +1,47 @@
+// cmd/api/main.go
 package main
 
 import (
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/igorschechtel/finance-tracker-backend/internal/handlers"
+	"github.com/igorschechtel/finance-tracker-backend/internal/api"
+	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
+	"github.com/igorschechtel/finance-tracker-backend/internal/config"
+	"github.com/igorschechtel/finance-tracker-backend/internal/database"
+	"github.com/igorschechtel/finance-tracker-backend/internal/repository"
 )
 
 func main() {
-	// Create a new router
-	r := chi.NewRouter()
-
-	// Add some middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	// Set up routes
-	handlers.SetupRoutes(r)
-
-	// Start the server
-	port := "8080"
-	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: r,
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Channel to listen for errors coming from the listener
-	serverErrors := make(chan error, 1)
+	// Database connection
+	db, err := database.NewConnection(cfg.Database)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
 
-	// Start the server in a goroutine
-	go func() {
-		log.Printf("Server listening on port %s", port)
-		serverErrors <- server.ListenAndServe()
-	}()
+	// Repositories
+	userRepo := repository.NewUserRepository(db)
+	// Other repos...
 
-	// Channel to listen for an interrupt or terminate signal from the OS
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+	// Handlers
+	userHandler := handlers.NewUserHandler(userRepo)
+	// Other handlers...
 
-	// Block until we receive a signal or an error
-	select {
-	case err := <-serverErrors:
-		log.Fatalf("Error starting server: %v", err)
+	// Setup router
+	router := api.SetupRouter(userHandler)
 
-	case <-shutdown:
-		log.Println("Starting shutdown...")
-		// Gracefully shutdown the server
-		if err := server.Close(); err != nil {
-			log.Fatalf("Could not stop server gracefully: %v", err)
-		}
-		log.Println("Server stopped")
+	// Start server
+	addr := ":" + strconv.Itoa(cfg.Server.Port)
+	log.Printf("Server starting on %s in %s mode", addr, cfg.Env)
+	if err := http.ListenAndServe(addr, router); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
 	}
 }
