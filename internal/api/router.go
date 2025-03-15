@@ -22,8 +22,7 @@ func SetupRouter(
 		// User routes
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/", userHandler.List)
-			r.Get("/{id}", userHandler.GetByID)
-			// Add more routes as needed
+			r.Post("/", userHandler.Create)
 		})
 
 		// Other entity routes...

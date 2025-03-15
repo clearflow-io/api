@@ -10,7 +10,7 @@ import (
 	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
 	"github.com/igorschechtel/finance-tracker-backend/internal/config"
 	"github.com/igorschechtel/finance-tracker-backend/internal/database"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repository"
+	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
 )
 
 func main() {
@@ -28,12 +28,10 @@ func main() {
 	defer db.Close()
 
 	// Repositories
-	userRepo := repository.NewUserRepository(db)
-	// Other repos...
+	userRepo := repositories.NewUserRepository(db)
 
 	// Handlers
 	userHandler := handlers.NewUserHandler(userRepo)
-	// Other handlers...
 
 	// Setup router
 	router := api.SetupRouter(userHandler)

@@ -1,0 +1,7 @@
+- [ ] Better validation for current routes
+  - [Go Validator](https://pkg.go.dev/github.com/go-playground/validator/v10#section-readme) seems to be a good choice
+- [ ] Better error responses
+- [ ] Add handlers/repositories for other entities
+  - [ ] expense
+  - [ ] category
+- [ ] Find a way to generate Swagger docs from the code

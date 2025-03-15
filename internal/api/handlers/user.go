@@ -5,34 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repository"
+	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
 )
 
 type UserHandler struct {
-	userRepo repository.UserRepository
+	userRepo repositories.UserRepository
 }
 
-func NewUserHandler(userRepo repository.UserRepository) *UserHandler {
+func NewUserHandler(userRepo repositories.UserRepository) *UserHandler {
 	return &UserHandler{userRepo: userRepo}
-}
-
-func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	user, err := h.userRepo.GetByID(r.Context(), id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if user == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
 }
 
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -65,4 +47,20 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// Add other methods like Create, Update, Delete as needed
+func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	createdUser, err := h.userRepo.Create(r.Context(), &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdUser)
+}
