@@ -1,8 +1,8 @@
 ## Next steps
 
-- [ ] Better validation for current routes
+- [x] Better validation for current routes
   - [Go Validator](https://pkg.go.dev/github.com/go-playground/validator/v10#section-readme) seems to be a good choice
-- [ ] Better error responses
+- [x] Better error responses
 - [ ] Add handlers/repositories for other entities
   - [ ] expense
   - [ ] category

@@ -27,6 +27,8 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]model.U
 		table.User.AllColumns,
 	).FROM(
 		table.User,
+	).ORDER_BY(
+		table.User.ID.ASC(),
 	).LIMIT(int64(limit)).OFFSET(int64(offset))
 
 	var dest []model.User
