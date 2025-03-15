@@ -9,7 +9,7 @@ import (
 
 func SetupRouter(
 	userHandler *handlers.UserHandler,
-	// other handlers...
+	expenseHandler *handlers.ExpenseHandler,
 ) *chi.Mux {
 	r := chi.NewRouter()
 
@@ -23,6 +23,11 @@ func SetupRouter(
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/", userHandler.List)
 			r.Post("/", userHandler.Create)
+
+			r.Route("/{userId}/expenses", func(r chi.Router) {
+				r.Get("/", expenseHandler.ListByUser)
+				r.Post("/", expenseHandler.Create)
+			})
 		})
 
 		// Other entity routes...

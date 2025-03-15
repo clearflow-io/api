@@ -29,12 +29,14 @@ func main() {
 
 	// Repositories
 	userRepo := repositories.NewUserRepository(db)
+	expenseRepo := repositories.NewExpenseRepository(db)
 
 	// Handlers
 	userHandler := handlers.NewUserHandler(userRepo)
+	expenseHandler := handlers.NewExpenseHandler(expenseRepo)
 
 	// Setup router
-	router := api.SetupRouter(userHandler)
+	router := api.SetupRouter(userHandler, expenseHandler)
 
 	// Start server
 	addr := ":" + strconv.Itoa(cfg.Server.Port)
