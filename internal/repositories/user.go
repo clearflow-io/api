@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/go-jet/jet/v2/postgres"
 	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/table"
 )
@@ -23,7 +22,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *userRepository) List(ctx context.Context, limit, offset int) ([]model.User, error) {
-	stmt := postgres.SELECT(
+	stmt := table.User.SELECT(
 		table.User.AllColumns,
 	).FROM(
 		table.User,

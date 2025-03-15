@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
+	"reflect"
 )
 
 // ParseJSON parses the JSON body into the provided struct and handles type mismatch errors.
@@ -34,28 +34,23 @@ func ParseJSON(r *http.Request, dest any, strict bool) ([]string, error) {
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
+
+	// Handle nil slices and maps
+	if v == nil {
+		v = struct{}{} // Encode nil as an empty JSON object
+	} else {
+		// Use reflection to check for nil slices or maps
+		val := reflect.ValueOf(v)
+		if val.Kind() == reflect.Slice && val.IsNil() {
+			v = []any{} // Encode nil slice as an empty JSON array
+		} else if val.Kind() == reflect.Map && val.IsNil() {
+			v = map[string]any{} // Encode nil map as an empty JSON object
+		}
+	}
+
 	return json.NewEncoder(w).Encode(v)
 }
 
 func WriteJSONError(w http.ResponseWriter, status int, errors []string) error {
 	return WriteJSON(w, status, ErrorResponse{Errors: errors})
-}
-
-// ParseQueryParamInt parses a query parameter string into the provided destination.
-// Returns user-friendly error messages if parsing fails.
-func ParseQueryParamInt(r *http.Request, paramName string, dest *int) ([]string, error) {
-	param := r.URL.Query().Get(paramName)
-	if param == "" {
-		return nil, nil
-	}
-
-	parsedValue, err := strconv.Atoi(param)
-	if err != nil {
-		return []string{
-			fmt.Sprintf("Invalid value '%s'. Expected an integer.", param),
-		}, err
-	}
-
-	*dest = parsedValue
-	return nil, nil
 }
