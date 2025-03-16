@@ -31,5 +31,5 @@ func FormatValidationErrors(err error) []string {
 }
 
 type ErrorResponse struct {
-	Errors []string `json:"errors,omitempty"`
+	Errors []string `json:"errors"`
 }
