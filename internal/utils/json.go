@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+
+	"github.com/sirupsen/logrus"
 )
 
 // ParseJSON parses the JSON body into the provided struct and handles type mismatch errors.
 // If strict is true, it disallows unknown fields in the JSON.
-func ParseJSON(r *http.Request, dest any, strict bool) ([]string, error) {
+func ParseJSON(r *http.Request, dest any, strict bool) error {
 	decoder := json.NewDecoder(r.Body)
 	if strict {
 		decoder.DisallowUnknownFields() // Enforce strict decoding
@@ -19,16 +21,15 @@ func ParseJSON(r *http.Request, dest any, strict bool) ([]string, error) {
 	if err := decoder.Decode(dest); err != nil {
 		var unmarshalTypeError *json.UnmarshalTypeError
 		if errors.As(err, &unmarshalTypeError) {
-			return []string{
-				fmt.Sprintf("Invalid type for field '%s': expected '%s', got '%s'", unmarshalTypeError.Field, unmarshalTypeError.Type, unmarshalTypeError.Value),
-			}, err
+			return fmt.Errorf("invalid type for field '%s': expected '%s', got '%s'",
+				unmarshalTypeError.Field, unmarshalTypeError.Type, unmarshalTypeError.Value)
 		}
 
 		// Handle other JSON decoding errors
-		return []string{err.Error()}, err
+		return err
 	}
 
-	return nil, nil
+	return nil
 }
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
@@ -51,6 +52,7 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-func WriteJSONError(w http.ResponseWriter, status int, errors []string) error {
-	return WriteJSON(w, status, ErrorResponse{Errors: errors})
+func WriteJSONError(w http.ResponseWriter, status int, err error) error {
+	logrus.Warnf("Writing JSON error: %s", err)
+	return WriteJSON(w, status, ErrorResponse{Error: err.Error()})
 }

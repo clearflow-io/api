@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
 	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
 	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
 )
@@ -21,9 +21,9 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, err := u.ParseUUID(chi.URLParam(r, "userId"), "UserID")
+	userID, err := auth.GetUserID(r)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{err.Error()})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -36,12 +36,12 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 		Offset: 0,
 	}
 
-	if errors, err := u.ParseQueryParamInt(r, "limit", &queryParams.Limit); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseQueryParamInt(r, &queryParams.Limit, "limit", false); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
-	if errors, err := u.ParseQueryParamInt(r, "offset", &queryParams.Offset); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseQueryParamInt(r, &queryParams.Offset, "offset", false); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	// Fetching
 	categories, err := h.expenseRepo.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, []string{"Failed to list categories"})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -65,9 +65,9 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, err := u.ParseUUID(chi.URLParam(r, "userId"), "UserID")
+	userID, err := auth.GetUserID(r)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, []string{err.Error()})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -81,8 +81,8 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		Description: "",
 	}
 
-	if errors, err := u.ParseJSON(r, &reqBody, true); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseJSON(r, &reqBody, true); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	createdCategory, err := h.expenseRepo.Create(r.Context(), modelCategory)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, []string{err.Error()})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 

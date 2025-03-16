@@ -34,13 +34,13 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 		Offset: 0,
 	}
 
-	if errors, err := u.ParseQueryParamInt(r, "limit", &queryParams.Limit); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseQueryParamInt(r, &queryParams.Limit, "limit", false); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	if errors, err := u.ParseQueryParamInt(r, "offset", &queryParams.Offset); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseQueryParamInt(r, &queryParams.Offset, "offset", false); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Fetching
 	users, err := h.userRepo.List(r.Context(), queryParams.Limit, queryParams.Offset)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, []string{"Failed to list users"})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -69,8 +69,8 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body CreateUserRequest
-	if errors, err := u.ParseJSON(r, &body, true); err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors)
+	if err := u.ParseJSON(r, &body, true); err != nil {
+		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Creating
 	createdUser, err := h.userRepo.Create(r.Context(), &user)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, []string{"Failed to create user"})
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 

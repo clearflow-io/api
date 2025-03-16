@@ -4,10 +4,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/igorschechtel/finance-tracker-backend/internal/config"
 	_ "github.com/lib/pq" // PostgreSQL driver
+	"github.com/sirupsen/logrus"
 )
 
 // NewConnection establishes a connection to the database
@@ -23,6 +23,6 @@ func NewConnection(config config.DatabaseConfig) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	log.Println("Database connection established")
+	logrus.Info("Database connection established")
 	return db, nil
 }

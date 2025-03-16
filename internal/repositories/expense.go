@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
@@ -64,7 +63,6 @@ func (r *expenseRepository) Create(ctx context.Context, expense *model.Expense) 
 
 	err := query.QueryContext(ctx, r.db, expense)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 

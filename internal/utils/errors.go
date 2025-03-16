@@ -2,11 +2,12 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
-func FormatValidationErrors(err error) []string {
+func FormatValidationErrors(err error) error {
 	validationErrors := err.(validator.ValidationErrors)
 	errorMessages := make([]string, 0)
 
@@ -27,9 +28,10 @@ func FormatValidationErrors(err error) []string {
 		errorMessages = append(errorMessages, message)
 	}
 
-	return errorMessages
+	// Join all error messages into a single string
+	return fmt.Errorf("%s", strings.Join(errorMessages, "; "))
 }
 
 type ErrorResponse struct {
-	Errors []string `json:"errors"`
+	Error string `json:"error"`
 }

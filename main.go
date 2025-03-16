@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -10,19 +9,20 @@ import (
 	"github.com/igorschechtel/finance-tracker-backend/internal/config"
 	"github.com/igorschechtel/finance-tracker-backend/internal/database"
 	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("Failed to load configuration: %v", err)
+		logrus.WithError(err).Fatal("Failed to load configuration")
 	}
 
 	// Database connection
 	db, err := database.NewConnection(cfg.Database)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		logrus.WithError(err).Fatal("Failed to connect to database")
 	}
 	defer db.Close()
 
@@ -37,12 +37,12 @@ func main() {
 	categoryHandler := handlers.NewCategoryHandler(categoryRepo)
 
 	// Setup router
-	router := api.SetupRouter(userHandler, expenseHandler, categoryHandler)
+	router := api.SetupRouter(cfg, userHandler, expenseHandler, categoryHandler)
 
 	// Start server
 	addr := ":" + strconv.Itoa(cfg.Server.Port)
-	log.Printf("Server starting on %s in %s mode", addr, cfg.Env)
+	logrus.Infof("Server starting on %s in %s mode", addr, cfg.Env)
 	if err := http.ListenAndServe(addr, router); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		logrus.WithError(err).Fatal("Server failed to start")
 	}
 }

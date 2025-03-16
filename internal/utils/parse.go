@@ -8,30 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
-// ParseQueryParamInt parses a query parameter string into the provided destination.
-// Returns user-friendly error messages if parsing fails.
-func ParseQueryParamInt(r *http.Request, paramName string, dest *int) ([]string, error) {
+func ParseQueryParamInt(r *http.Request, dest *int, paramName string, required bool) error {
 	param := r.URL.Query().Get(paramName)
 	if param == "" {
-		return nil, nil
+		if required {
+			return fmt.Errorf("query param %s is required", paramName)
+		}
+		return nil
 	}
 
 	parsedValue, err := strconv.Atoi(param)
 	if err != nil {
-		return []string{
-			fmt.Sprintf("Invalid value '%s'. Expected an integer.", param),
-		}, err
+		return fmt.Errorf("invalid value '%s': expected an integer", param)
 	}
 
 	*dest = parsedValue
-	return nil, nil
-}
-
-func IntPointerToValue(ptr *int) int {
-	if ptr == nil {
-		return 0 // Default value if nil
-	}
-	return *ptr
+	return nil
 }
 
 func ParseUUID(str, paramName string) (uuid.UUID, error) {
@@ -41,7 +33,7 @@ func ParseUUID(str, paramName string) (uuid.UUID, error) {
 
 	parsedUUID, err := uuid.Parse(str)
 	if err != nil {
-		return uuid.UUID{}, fmt.Errorf("invalid path parameter %s format", paramName)
+		return uuid.UUID{}, fmt.Errorf("invalid path parameter %s: expected a valid UUID", paramName)
 	}
 
 	return parsedUUID, nil

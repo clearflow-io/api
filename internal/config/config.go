@@ -10,9 +10,10 @@ import (
 )
 
 type Config struct {
-	Database DatabaseConfig
-	Server   ServerConfig
-	Env      string
+	Database  DatabaseConfig
+	Server    ServerConfig
+	StackAuth StackAuthConfig
+	Env       string
 }
 
 type DatabaseConfig struct {
@@ -26,6 +27,11 @@ type DatabaseConfig struct {
 
 type ServerConfig struct {
 	Port int
+}
+
+type StackAuthConfig struct {
+	ProjectID       string
+	SecretServerKey string
 }
 
 func Load() (*Config, error) {
@@ -49,10 +55,16 @@ func Load() (*Config, error) {
 		Port: serverPort,
 	}
 
+	stackAuthConfig := StackAuthConfig{
+		ProjectID:       getEnv("STACK_PROJECT_ID", ""),
+		SecretServerKey: getEnv("STACK_SECRET_SERVER_KEY", ""),
+	}
+
 	return &Config{
-		Database: dbConfig,
-		Server:   serverConfig,
-		Env:      getEnv("ENV", "development"),
+		Database:  dbConfig,
+		Server:    serverConfig,
+		StackAuth: stackAuthConfig,
+		Env:       getEnv("ENV", "development"),
 	}, nil
 }
 

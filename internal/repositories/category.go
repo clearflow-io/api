@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
@@ -58,7 +57,6 @@ func (r *categoryRepository) Create(ctx context.Context, category *model.Categor
 
 	err := query.QueryContext(ctx, r.db, category)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
