@@ -4,6 +4,7 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
 )
 
@@ -13,6 +14,16 @@ func SetupRouter(
 	categoryHandler *handlers.CategoryHandler,
 ) *chi.Mux {
 	r := chi.NewRouter()
+	// CORS
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Add global middleware
 	r.Use(middleware.Logger)

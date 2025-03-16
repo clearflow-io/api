@@ -6,8 +6,8 @@
 - [x] Add handlers/repositories for other entities
   - [x] expense
   - [x] category
+- [x] Set up CORS
 - [ ] Add Stack authentication
-- [ ] Set up CORS
 - [ ] Deploy
   - Google Cloud Run might be a good choice
   - See [discussion](https://www.reddit.com/r/golang/comments/15zgudv/where_would_you_host_a_go_app/)
