@@ -10,6 +10,7 @@ import (
 	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
 	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
 	"github.com/igorschechtel/finance-tracker-backend/internal/config"
+	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,7 +45,7 @@ func SetupRouter(
 	// Middlewares
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(u.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 

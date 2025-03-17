@@ -48,11 +48,11 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) (*model.U
 		table.User.AllColumns,
 	)
 
-	var createdUser []model.User
+	var createdUser model.User
 	err := stmt.QueryContext(ctx, r.db, &createdUser)
 	if err != nil {
 		return nil, err
 	}
 
-	return &createdUser[0], nil
+	return &createdUser, nil
 }
