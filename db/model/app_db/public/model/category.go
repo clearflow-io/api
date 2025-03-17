@@ -19,4 +19,5 @@ type Category struct {
 	UserID      uuid.UUID
 	Name        string
 	Description string
+	ColorHex    string
 }

@@ -23,6 +23,7 @@ type categoryTable struct {
 	UserID      postgres.ColumnString
 	Name        postgres.ColumnString
 	Description postgres.ColumnString
+	ColorHex    postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -69,8 +70,9 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		UserIDColumn      = postgres.StringColumn("user_id")
 		NameColumn        = postgres.StringColumn("name")
 		DescriptionColumn = postgres.StringColumn("description")
-		allColumns        = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn}
-		mutableColumns    = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn}
+		ColorHexColumn    = postgres.StringColumn("color_hex")
+		allColumns        = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn, ColorHexColumn}
+		mutableColumns    = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn, ColorHexColumn}
 	)
 
 	return categoryTable{
@@ -83,6 +85,7 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		UserID:      UserIDColumn,
 		Name:        NameColumn,
 		Description: DescriptionColumn,
+		ColorHex:    ColorHexColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

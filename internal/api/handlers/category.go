@@ -74,11 +74,13 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 	type CreateCategoryRequest struct {
 		Name        string `json:"name" validate:"required,min=1,max=255"`
 		Description string `json:"description" validate:"max=255"`
+		ColorHex    string `json:"colorHex" validate:"required,min=7,max=7"`
 	}
 
 	reqBody := CreateCategoryRequest{
 		Name:        "",
 		Description: "",
+		ColorHex:    "",
 	}
 
 	if err := u.ParseJSON(r, &reqBody, true); err != nil {
@@ -97,6 +99,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		UserID:      userID,
 		Name:        reqBody.Name,
 		Description: reqBody.Description,
+		ColorHex:    reqBody.ColorHex,
 	}
 
 	createdCategory, err := h.expenseRepo.Create(r.Context(), modelCategory)

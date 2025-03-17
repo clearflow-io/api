@@ -49,10 +49,12 @@ func (r *categoryRepository) Create(ctx context.Context, category *model.Categor
 		table.Category.UserID,
 		table.Category.Name,
 		table.Category.Description,
+		table.Category.ColorHex,
 	).VALUES(
 		category.UserID,
 		category.Name,
 		category.Description,
+		category.ColorHex,
 	).RETURNING(table.Category.AllColumns)
 
 	err := query.QueryContext(ctx, r.db, category)
