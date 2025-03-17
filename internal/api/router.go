@@ -13,11 +13,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type Handlers struct {
+	User     *handlers.UserHandler
+	Expense  *handlers.ExpenseHandler
+	Category *handlers.CategoryHandler
+}
+
 func SetupRouter(
 	cfg *config.Config,
-	userHandler *handlers.UserHandler,
-	expenseHandler *handlers.ExpenseHandler,
-	categoryHandler *handlers.CategoryHandler,
+	handlers *Handlers,
 ) *chi.Mux {
 	r := chi.NewRouter()
 
@@ -48,8 +52,8 @@ func SetupRouter(
 	r.Route("/api/v1", func(r chi.Router) {
 		// User routes
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/", userHandler.List)
-			r.Post("/", userHandler.Create)
+			r.Get("/", handlers.User.List)
+			r.Post("/", handlers.User.Create)
 		})
 
 		// Protected routes
@@ -57,14 +61,14 @@ func SetupRouter(
 
 		// User expense routes
 		protected.Route("/expenses", func(r chi.Router) {
-			r.Get("/", expenseHandler.ListByUser)
-			r.Post("/", expenseHandler.Create)
+			r.Get("/", handlers.Expense.ListByUser)
+			r.Post("/", handlers.Expense.Create)
 		})
 
 		// User category routes
 		protected.Route("/categories", func(r chi.Router) {
-			r.Get("/", categoryHandler.ListByUser)
-			r.Post("/", categoryHandler.Create)
+			r.Get("/", handlers.Category.ListByUser)
+			r.Post("/", handlers.Category.Create)
 		})
 
 	})
