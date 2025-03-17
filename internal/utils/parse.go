@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -37,4 +38,14 @@ func ParseUUID(str, paramName string) (uuid.UUID, error) {
 	}
 
 	return parsedUUID, nil
+}
+
+func ParseIsoDate(dateStr string, dest *time.Time) error {
+	result, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return fmt.Errorf("invalid date format: expected %s, got %s", "YYYY-MM-DD", dateStr)
+	}
+
+	*dest = result
+	return nil
 }

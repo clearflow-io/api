@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
 	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
@@ -67,9 +66,9 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, err := u.ParseUUID(chi.URLParam(r, "userId"), "UserID")
+	userID, err := auth.GetUserID(r)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, err)
+		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -81,27 +80,18 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 		CategoryID   *int32  `json:"categoryId"`
 	}
 
-	reqBody := CreateExpenseRequest{
-		Amount:       0,
-		Description:  "",
-		PurchaseDate: "",
-		BillDate:     "",
-		CategoryID:   nil,
-	}
-
+	reqBody := CreateExpenseRequest{}
 	if err := u.ParseJSON(r, &reqBody, true); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	purchaseDate, err := time.Parse("2006-01-02", reqBody.PurchaseDate)
-	if err != nil {
+	var purchaseDate, billDate time.Time
+	if err := u.ParseIsoDate(reqBody.PurchaseDate, &purchaseDate); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}
-
-	billDate, err := time.Parse("2006-01-02", reqBody.BillDate)
-	if err != nil {
+	if err := u.ParseIsoDate(reqBody.BillDate, &billDate); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
 	}

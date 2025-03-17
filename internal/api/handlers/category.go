@@ -77,12 +77,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		ColorHex    string `json:"colorHex" validate:"required,min=7,max=7"`
 	}
 
-	reqBody := CreateCategoryRequest{
-		Name:        "",
-		Description: "",
-		ColorHex:    "",
-	}
-
+	reqBody := CreateCategoryRequest{}
 	if err := u.ParseJSON(r, &reqBody, true); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, err)
 		return
