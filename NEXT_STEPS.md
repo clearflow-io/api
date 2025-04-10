@@ -7,7 +7,7 @@
   - [x] expense
   - [x] category
 - [x] Set up CORS
-- [x] Add Stack authentication
+- [x] Add Clerk authentication
 - [x] Change error responses to use `json:"error"` instead of `json:"errors"`
 - [ ] Deploy
   - Google Cloud Run might be a good choice

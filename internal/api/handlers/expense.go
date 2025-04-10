@@ -22,9 +22,9 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, err := auth.GetUserID(r)
-	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, err)
+	userID, ok := auth.GetUserID(r.Context())
+	if !ok {
+		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
 	}
 
@@ -66,9 +66,9 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, err := auth.GetUserID(r)
-	if err != nil {
-		u.WriteJSONError(w, http.StatusInternalServerError, err)
+	userID, ok := auth.GetUserID(r.Context())
+	if !ok {
+		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
 	}
 

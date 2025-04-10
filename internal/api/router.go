@@ -11,7 +11,6 @@ import (
 	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
 	"github.com/igorschechtel/finance-tracker-backend/internal/config"
 	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
-	"github.com/sirupsen/logrus"
 )
 
 type Handlers struct {
@@ -26,10 +25,7 @@ func SetupRouter(
 ) *chi.Mux {
 	r := chi.NewRouter()
 
-	authClient, err := auth.InitializeHTTPClient()
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	auth.InitializeClerk()
 
 	// CORS
 	r.Use(cors.Handler(cors.Options{
@@ -58,7 +54,7 @@ func SetupRouter(
 		})
 
 		// Protected routes
-		protected := r.With(auth.AuthMiddleware(authClient, cfg))
+		protected := r.With(auth.ClerkAuthMiddleware())
 
 		// User expense routes
 		protected.Route("/expenses", func(r chi.Router) {

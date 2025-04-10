@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -35,3 +36,5 @@ func FormatValidationErrors(err error) error {
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+var ErrUnauthorized = errors.New("Unauthorized")
