@@ -10,7 +10,10 @@ import (
 	"github.com/igorschechtel/clearflow-backend/internal/api/handlers"
 	"github.com/igorschechtel/clearflow-backend/internal/auth"
 	"github.com/igorschechtel/clearflow-backend/internal/config"
+	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
+	"database/sql"
+	"net/http"
 )
 
 type Handlers struct {
@@ -22,10 +25,22 @@ type Handlers struct {
 func SetupRouter(
 	cfg *config.Config,
 	handlers *Handlers,
+	db *sql.DB,
 ) *chi.Mux {
 	r := chi.NewRouter()
 
 	auth.InitializeClerk()
+
+	// Health check
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		err := db.Ping()
+		if err != nil {
+			u.WriteJSONError(w, http.StatusServiceUnavailable, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 
 	// CORS
 	r.Use(cors.Handler(cors.Options{

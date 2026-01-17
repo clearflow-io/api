@@ -47,7 +47,7 @@ func main() {
 		Expense:  handlers.NewExpenseHandler(expenseService, v),
 		Category: handlers.NewCategoryHandler(categoryService, v),
 	}
-	router := api.SetupRouter(cfg, handlers)
+	router := api.SetupRouter(cfg, handlers, db)
 
 	// Start server
 	addr := ":" + strconv.Itoa(cfg.Server.Port)
