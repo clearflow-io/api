@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/igorschechtel/clearflow-backend/internal/api"
@@ -30,6 +31,15 @@ func main() {
 		logrus.WithError(err).Fatal("Failed to connect to database")
 	}
 	defer db.Close()
+
+	// If --check-db flag is passed, just verify connection and exit
+	if len(os.Args) > 1 && os.Args[1] == "--check-db" {
+		if err := db.Ping(); err != nil {
+			logrus.WithError(err).Fatal("Database ping failed")
+		}
+		logrus.Info("Database connection check successful")
+		return
+	}
 
 	// Run migrations
 	if err := database.RunMigrations(db); err != nil {

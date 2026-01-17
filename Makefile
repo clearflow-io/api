@@ -13,3 +13,7 @@ migrate-remote:
 
 jet-generate:
 	jet -source=PostgreSQL -host=localhost -port=5432 -user=admin -password=password -dbname=app_db -path=./db/model -schema=public
+
+# Verify database connection locally
+check-db:
+	go run main.go --check-db

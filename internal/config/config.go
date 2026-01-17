@@ -18,6 +18,7 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
+	URL      string // Support for full DSN/URL
 	Host     string
 	Port     int
 	User     string
@@ -40,8 +41,10 @@ func Load() (*Config, error) {
 	godotenv.Load()
 
 	// Database config
+	dbURL := os.Getenv("DATABASE_URL")
 	dbPort, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
 	dbConfig := DatabaseConfig{
+		URL:      dbURL,
 		Host:     getEnv("DB_HOST", "localhost"),
 		Port:     dbPort,
 		User:     getEnv("DB_USER", ""),
@@ -81,6 +84,9 @@ func getEnv(key, defaultValue string) string {
 
 // ConnectionString returns a formatted connection string for the database
 func (c *DatabaseConfig) ConnectionString() string {
+	if c.URL != "" {
+		return c.URL
+	}
 	return fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode,
