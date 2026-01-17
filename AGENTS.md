@@ -63,7 +63,8 @@ Maintain strict separation between layers:
 - **BUILD SAFETY (CRITICAL)**:
     1. Always run `go mod tidy` and verify the build with `go build`.
     2. **MANDATORY**: Perform a **Runtime Smoke Test** after significant changes (especially routing/middleware). Start the server locally and verify at least the `/healthz` endpoint.
-    3. Never assume `go.sum` is updated automatically.
+    3. **EXTERNAL CONFIG**: When suggesting connection strings or external parameters (like SSL modes), always double-check the latest documentation for the specific driver (e.g., `pgx`) and provider (e.g., Supabase/Render).
+    4. Never assume `go.sum` is updated automatically.
 - When adding new functionality, follow the flow: Handler -> Service -> Repository.
 - When adding new handlers, always update the `Handlers` struct in `internal/api/router.go` and wire them up in `main.go`.
 - When modifying the database schema, provide the SQL migration and ensure `jet-generate` is run.

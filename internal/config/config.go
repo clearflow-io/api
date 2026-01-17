@@ -18,13 +18,7 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
-	URL      string // Support for full DSN/URL
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
+	URL string
 }
 
 type ServerConfig struct {
@@ -42,15 +36,11 @@ func Load() (*Config, error) {
 
 	// Database config
 	dbURL := os.Getenv("DATABASE_URL")
-	dbPort, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
+	if dbURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL environment variable is required")
+	}
 	dbConfig := DatabaseConfig{
-		URL:      dbURL,
-		Host:     getEnv("DB_HOST", "localhost"),
-		Port:     dbPort,
-		User:     getEnv("DB_USER", ""),
-		Password: getEnv("DB_PASSWORD", ""),
-		DBName:   getEnv("DB_NAME", ""),
-		SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		URL: dbURL,
 	}
 
 	// Server config
@@ -82,13 +72,7 @@ func getEnv(key, defaultValue string) string {
 	return value
 }
 
-// ConnectionString returns a formatted connection string for the database
+// ConnectionString returns the database connection string
 func (c *DatabaseConfig) ConnectionString() string {
-	if c.URL != "" {
-		return c.URL
-	}
-	return fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode,
-	)
+	return c.URL
 }
