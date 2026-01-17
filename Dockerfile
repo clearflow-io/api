@@ -13,12 +13,13 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
+# Install migrate tool
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
 # Copy the source code
 COPY . .
 
 # Build the application
-# CGO_ENABLED=0 makes the binary statically linked (self-contained)
-# GOOS=linux ensures it runs on Linux containers
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main main.go
 
 # Final stage
@@ -28,14 +29,12 @@ RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /root/
 
-# Copy the pre-built binary from the builder stage
+# Copy the binary and migrate tool from builder
 COPY --from=builder /app/main .
+COPY --from=builder /go/bin/migrate .
+# Copy migrations folder so they are available in the container
+COPY --from=builder /app/db/migrations ./db/migrations
 
-# Copy the .env file if you want to include defaults (optional, environment variables in Render take precedence)
-# COPY --from=builder /app/.env .
-
-# Export the port the app runs on
 EXPOSE 8080
 
-# Command to run the executable
 CMD ["./main"]

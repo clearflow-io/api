@@ -31,6 +31,11 @@ func main() {
 	}
 	defer db.Close()
 
+	// Run migrations
+	if err := database.RunMigrations(db); err != nil {
+		logrus.WithError(err).Fatal("Failed to run database migrations")
+	}
+
 	// Repositories
 	userRepo := repositories.NewUserRepository(db)
 	expenseRepo := repositories.NewExpenseRepository(db)

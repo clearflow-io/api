@@ -10,7 +10,6 @@ import (
 	"github.com/igorschechtel/clearflow-backend/internal/api/handlers"
 	"github.com/igorschechtel/clearflow-backend/internal/auth"
 	"github.com/igorschechtel/clearflow-backend/internal/config"
-	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 	"database/sql"
 	"net/http"
