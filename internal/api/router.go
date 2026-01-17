@@ -7,10 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
-	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
-	"github.com/igorschechtel/finance-tracker-backend/internal/config"
-	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
+	"github.com/igorschechtel/clearflow-backend/internal/api/handlers"
+	"github.com/igorschechtel/clearflow-backend/internal/auth"
+	"github.com/igorschechtel/clearflow-backend/internal/config"
+	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
 
 type Handlers struct {
@@ -29,7 +29,7 @@ func SetupRouter(
 
 	// CORS
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedOrigins: cfg.Server.AllowedOrigins,
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},

@@ -5,19 +5,21 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
-	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/internal/services"
+	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
 
-var validate *validator.Validate = validator.New(validator.WithRequiredStructEnabled())
-
 type UserHandler struct {
-	userRepo repositories.UserRepository
+	userService services.UserService
+	validate    *validator.Validate
 }
 
-func NewUserHandler(userRepo repositories.UserRepository) *UserHandler {
-	return &UserHandler{userRepo: userRepo}
+func NewUserHandler(userService services.UserService, validate *validator.Validate) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+		validate:    validate,
+	}
 }
 
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -45,13 +47,13 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(queryParams); err != nil {
+	if err := h.validate.Struct(queryParams); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
 
 	// Fetching
-	users, err := h.userRepo.List(r.Context(), queryParams.Limit, queryParams.Offset)
+	users, err := h.userService.List(r.Context(), queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
@@ -75,7 +77,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(body); err != nil {
+	if err := h.validate.Struct(body); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
@@ -85,7 +87,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Creating
-	createdUser, err := h.userRepo.Create(r.Context(), &user)
+	createdUser, err := h.userService.Create(r.Context(), &user)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return

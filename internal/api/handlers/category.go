@@ -3,18 +3,23 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
-	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
+	"github.com/go-playground/validator/v10"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/internal/auth"
+	"github.com/igorschechtel/clearflow-backend/internal/services"
+	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
 
 type CategoryHandler struct {
-	expenseRepo repositories.CategoryRepository
+	categoryService services.CategoryService
+	validate        *validator.Validate
 }
 
-func NewCategoryHandler(expenseRepo repositories.CategoryRepository) *CategoryHandler {
-	return &CategoryHandler{expenseRepo: expenseRepo}
+func NewCategoryHandler(categoryService services.CategoryService, validate *validator.Validate) *CategoryHandler {
+	return &CategoryHandler{
+		categoryService: categoryService,
+		validate:        validate,
+	}
 }
 
 func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
@@ -46,13 +51,13 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(queryParams); err != nil {
+	if err := h.validate.Struct(queryParams); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
 
 	// Fetching
-	categories, err := h.expenseRepo.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
+	categories, err := h.categoryService.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
@@ -84,7 +89,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(reqBody); err != nil {
+	if err := h.validate.Struct(reqBody); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
@@ -97,7 +102,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		ColorHex:    reqBody.ColorHex,
 	}
 
-	createdCategory, err := h.expenseRepo.Create(r.Context(), modelCategory)
+	createdCategory, err := h.categoryService.Create(r.Context(), modelCategory)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return

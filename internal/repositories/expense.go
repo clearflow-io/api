@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/table"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/table"
 )
 
 type ExpenseRepository interface {

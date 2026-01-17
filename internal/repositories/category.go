@@ -6,12 +6,13 @@ import (
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/table"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/table"
 )
 
 type CategoryRepository interface {
 	ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]model.Category, error)
+	GetByID(ctx context.Context, id int32) (*model.Category, error)
 	Create(ctx context.Context, category *model.Category) (*model.Category, error)
 }
 
@@ -42,6 +43,27 @@ func (r *categoryRepository) ListByUser(ctx context.Context, userID uuid.UUID, l
 	}
 
 	return dest, nil
+}
+
+func (r *categoryRepository) GetByID(ctx context.Context, id int32) (*model.Category, error) {
+	query := table.Category.SELECT(
+		table.Category.AllColumns,
+	).FROM(
+		table.Category,
+	).WHERE(
+		table.Category.ID.EQ(postgres.Int32(id)),
+	)
+
+	var dest model.Category
+	err := query.QueryContext(ctx, r.db, &dest)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &dest, nil
 }
 
 func (r *categoryRepository) Create(ctx context.Context, category *model.Category) (*model.Category, error) {

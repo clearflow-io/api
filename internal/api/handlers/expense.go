@@ -4,18 +4,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/internal/auth"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
-	u "github.com/igorschechtel/finance-tracker-backend/internal/utils"
+	"github.com/go-playground/validator/v10"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/internal/auth"
+	"github.com/igorschechtel/clearflow-backend/internal/services"
+	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
 
 type ExpenseHandler struct {
-	expenseRepo repositories.ExpenseRepository
+	expenseService services.ExpenseService
+	validate       *validator.Validate
 }
 
-func NewExpenseHandler(expenseRepo repositories.ExpenseRepository) *ExpenseHandler {
-	return &ExpenseHandler{expenseRepo: expenseRepo}
+func NewExpenseHandler(expenseService services.ExpenseService, validate *validator.Validate) *ExpenseHandler {
+	return &ExpenseHandler{
+		expenseService: expenseService,
+		validate:       validate,
+	}
 }
 
 func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
@@ -47,13 +52,13 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(queryParams); err != nil {
+	if err := h.validate.Struct(queryParams); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
 
 	// Fetching
-	expenses, err := h.expenseRepo.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
+	expenses, err := h.expenseService.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
@@ -97,7 +102,7 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validation
-	if err := validate.Struct(reqBody); err != nil {
+	if err := h.validate.Struct(reqBody); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
 		return
 	}
@@ -112,8 +117,16 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 		CategoryID:   reqBody.CategoryID,
 	}
 
-	createdExpense, err := h.expenseRepo.Create(r.Context(), modelExpense)
+	createdExpense, err := h.expenseService.Create(r.Context(), modelExpense)
 	if err != nil {
+		if err == u.ErrNotFound {
+			u.WriteJSONError(w, http.StatusNotFound, err)
+			return
+		}
+		if err == u.ErrForbidden {
+			u.WriteJSONError(w, http.StatusForbidden, err)
+			return
+		}
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}

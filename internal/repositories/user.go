@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/model"
-	"github.com/igorschechtel/finance-tracker-backend/db/model/app_db/public/table"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/table"
 )
 
 type UserRepository interface {

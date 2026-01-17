@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -26,7 +27,8 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
-	Port int
+	Port           int
+	AllowedOrigins []string
 }
 
 type ClerkConfig struct {
@@ -50,8 +52,10 @@ func Load() (*Config, error) {
 
 	// Server config
 	serverPort, _ := strconv.Atoi(getEnv("PORT", "8080"))
+	allowedOrigins := strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:3000"), ",")
 	serverConfig := ServerConfig{
-		Port: serverPort,
+		Port:           serverPort,
+		AllowedOrigins: allowedOrigins,
 	}
 
 	clerkConfig := ClerkConfig{

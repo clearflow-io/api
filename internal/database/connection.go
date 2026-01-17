@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/igorschechtel/finance-tracker-backend/internal/config"
+	"github.com/igorschechtel/clearflow-backend/internal/config"
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"github.com/sirupsen/logrus"
 )

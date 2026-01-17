@@ -4,11 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/igorschechtel/finance-tracker-backend/internal/api"
-	"github.com/igorschechtel/finance-tracker-backend/internal/api/handlers"
-	"github.com/igorschechtel/finance-tracker-backend/internal/config"
-	"github.com/igorschechtel/finance-tracker-backend/internal/database"
-	"github.com/igorschechtel/finance-tracker-backend/internal/repositories"
+	"github.com/igorschechtel/clearflow-backend/internal/api"
+	"github.com/igorschechtel/clearflow-backend/internal/api/handlers"
+	"github.com/igorschechtel/clearflow-backend/internal/config"
+	"github.com/igorschechtel/clearflow-backend/internal/database"
+	"github.com/igorschechtel/clearflow-backend/internal/repositories"
+	"github.com/igorschechtel/clearflow-backend/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +20,9 @@ func main() {
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to load configuration")
 	}
+
+	// Initialize validator
+	v := validator.New(validator.WithRequiredStructEnabled())
 
 	// Database connection
 	db, err := database.NewConnection(cfg.Database)
@@ -31,11 +36,16 @@ func main() {
 	expenseRepo := repositories.NewExpenseRepository(db)
 	categoryRepo := repositories.NewCategoryRepository(db)
 
+	// Services
+	userService := services.NewUserService(userRepo)
+	expenseService := services.NewExpenseService(expenseRepo, categoryRepo)
+	categoryService := services.NewCategoryService(categoryRepo)
+
 	// Handlers
 	handlers := &api.Handlers{
-		User:     handlers.NewUserHandler(userRepo),
-		Expense:  handlers.NewExpenseHandler(expenseRepo),
-		Category: handlers.NewCategoryHandler(categoryRepo),
+		User:     handlers.NewUserHandler(userService, v),
+		Expense:  handlers.NewExpenseHandler(expenseService, v),
+		Category: handlers.NewCategoryHandler(categoryService, v),
 	}
 	router := api.SetupRouter(cfg, handlers)
 

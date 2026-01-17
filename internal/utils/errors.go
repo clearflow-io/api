@@ -38,3 +38,6 @@ type ErrorResponse struct {
 }
 
 var ErrUnauthorized = errors.New("Unauthorized")
+var ErrForbidden = errors.New("Forbidden")
+var ErrNotFound = errors.New("Not Found")
+var ErrInternal = errors.New("Internal Server Error")
