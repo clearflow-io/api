@@ -59,6 +59,13 @@ func SetupRouter(
 		w.Write([]byte("OK"))
 	})
 
+	// Root route
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message": "Welcome to the ClearFlow API", "status": "running"}`))
+	})
+
 	// API v1 routes
 	r.Route("/api/v1", func(r chi.Router) {
 		// User routes
