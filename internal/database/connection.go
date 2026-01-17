@@ -9,7 +9,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/igorschechtel/clearflow-backend/internal/config"
-	_ "github.com/lib/pq" // PostgreSQL driver
+	_ "github.com/jackc/pgx/v5/stdlib" // pgx PostgreSQL driver
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,7 +17,8 @@ import (
 func NewConnection(config config.DatabaseConfig) (*sql.DB, error) {
 	connStr := config.ConnectionString()
 
-	db, err := sql.Open("postgres", connStr)
+	// Use pgx driver for compatibility with Supabase Pooler (Transaction Mode)
+	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database connection: %w", err)
 	}
