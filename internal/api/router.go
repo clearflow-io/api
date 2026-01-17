@@ -30,17 +30,6 @@ func SetupRouter(
 
 	auth.InitializeClerk()
 
-	// Health check
-	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		err := db.Ping()
-		if err != nil {
-			u.WriteJSONError(w, http.StatusServiceUnavailable, err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
-
 	// CORS
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: cfg.Server.AllowedOrigins,
@@ -58,6 +47,17 @@ func SetupRouter(
 	r.Use(u.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
+
+	// Health check
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		err := db.Ping()
+		if err != nil {
+			u.WriteJSONError(w, http.StatusServiceUnavailable, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 
 	// API v1 routes
 	r.Route("/api/v1", func(r chi.Router) {
