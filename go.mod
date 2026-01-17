@@ -1,6 +1,6 @@
 module github.com/igorschechtel/clearflow-backend
 
-go 1.24.1
+go 1.25.6
 
 require (
 	github.com/clerk/clerk-sdk-go/v2 v2.3.0

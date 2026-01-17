@@ -54,7 +54,7 @@ graph TD
 
 ### Prerequisites
 
-- Go 1.24+
+- Go 1.25+
 - Docker & Docker Compose
 - PostgreSQL (or use the provided Docker setup)
 
@@ -69,14 +69,10 @@ graph TD
 2. **Environment Variables**:
    Create a `.env` file in the root directory and populate it with your configuration:
    ```env
+   DATABASE_URL=postgres://admin:password@localhost:5432/app_db?sslmode=disable
    PORT=8080
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=admin
-   DB_PASSWORD=password
-   DB_NAME=app_db
-   CLERK_SECRET_KEY=your_clerk_secret_key
    ALLOWED_ORIGINS=http://localhost:3000
+   CLERK_SECRET_KEY=your_clerk_secret_key
    ```
 
 3. **Start the Database**:
