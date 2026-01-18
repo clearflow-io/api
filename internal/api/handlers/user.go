@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/internal/auth"
 	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
@@ -82,6 +84,13 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Validation
 	if err := h.validate.Struct(body); err != nil {
 		u.WriteJSONError(w, http.StatusBadRequest, u.FormatValidationErrors(err))
+		return
+	}
+
+	// Security check: ensure user is only creating/updating their own profile
+	authenticatedClerkID, ok := auth.GetUserID(r.Context())
+	if !ok || authenticatedClerkID != body.ClerkID {
+		u.WriteJSONError(w, http.StatusForbidden, errors.New("cannot create or update profile for another user"))
 		return
 	}
 
