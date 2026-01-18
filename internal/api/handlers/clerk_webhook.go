@@ -58,9 +58,11 @@ func (h *ClerkWebhookHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Limit payload size to 1MB
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
-		u.WriteJSONError(w, http.StatusBadRequest, errors.New("Failed to read request body"))
+		u.WriteJSONError(w, http.StatusBadRequest, errors.New("Failed to read request body or payload too large"))
 		return
 	}
 

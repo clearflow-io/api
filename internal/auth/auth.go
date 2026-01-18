@@ -30,7 +30,7 @@ func ClerkAuthMiddleware() func(http.Handler) http.Handler {
 // GetUserID extracts the user ID from the request context (Clerk ID)
 func GetUserID(ctx context.Context) (string, bool) {
 	claims, ok := clerk.SessionClaimsFromContext(ctx)
-	if !ok {
+	if !ok || claims.Subject == "" {
 		return "", false
 	}
 

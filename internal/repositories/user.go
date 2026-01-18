@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/table"
+	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
 
 type UserRepository interface {
@@ -110,6 +112,9 @@ func (r *userRepository) GetInternalIDByClerkID(ctx context.Context, clerkID str
 	var user model.User
 	err := stmt.QueryContext(ctx, r.db, &user)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return uuid.Nil, u.ErrNotFound
+		}
 		return uuid.Nil, err
 	}
 
