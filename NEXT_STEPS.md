@@ -12,14 +12,16 @@
 - [x] Deploy
 - [x] Enforce HTTPS
 - [x] Add rate limiting (using `httprate`)
-- [/] Create CI/CD pipeline with tests (Workflow added, branch protection pending)
+- [x] Create CI/CD pipeline with tests (Workflow added, branch protection pending)
+- [x] Enhance logging (capture status codes and response size)
+- [ ] Add security headers (HSTS, CSP, etc.)
 
 ## Future improvements
 
-- [ ] Write tests
-- [ ] Enhance logging (capture status codes and response size)
-- [ ] Add security headers (HSTS, CSP, etc.)
+- [ ] Write more tests
 - [ ] Cache API responses when appropriate
 - [ ] Error tracking (Sentry)
-- [ ] Add logging
-- [ ] Add metrics
+- [ ] Centralized logging (Elasticsearch/Logstash/Kibana or similar)
+- [ ] Audit logging for sensitive operations
+- [ ] Log rotation and retention policy
+- [ ] Performance monitoring (OpenTelemetry)
