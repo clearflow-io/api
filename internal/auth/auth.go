@@ -7,7 +7,6 @@ import (
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	clerkhttp "github.com/clerk/clerk-sdk-go/v2/http"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,20 +27,14 @@ func ClerkAuthMiddleware() func(http.Handler) http.Handler {
 	return clerkhttp.WithHeaderAuthorization()
 }
 
-// GetUserID extracts the user ID from the request context
-func GetUserID(ctx context.Context) (uuid.UUID, bool) {
+// GetUserID extracts the user ID from the request context (Clerk ID)
+func GetUserID(ctx context.Context) (string, bool) {
 	claims, ok := clerk.SessionClaimsFromContext(ctx)
 	if !ok {
-		return uuid.Nil, false
+		return "", false
 	}
 
-	userID, err := uuid.Parse(claims.Subject)
-	if err != nil {
-		return uuid.Nil, false
-	}
-
-	return userID, true
-
+	return claims.Subject, true
 }
 
 // RequireAuth is a convenience wrapper that returns a 401 if authentication fails
