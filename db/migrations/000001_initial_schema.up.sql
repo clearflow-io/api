@@ -1,3 +1,5 @@
+BEGIN;
+
 -- Create the "user" table
 CREATE TABLE "user" (
     "id" UUID NOT NULL,
@@ -58,3 +60,5 @@ CREATE TRIGGER set_updated_at_category
 BEFORE UPDATE ON "category"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
+
+COMMIT;

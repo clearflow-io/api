@@ -27,6 +27,7 @@ type categoryTable struct {
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
+	DefaultColumns postgres.ColumnList
 }
 
 type CategoryTable struct {
@@ -73,6 +74,7 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		ColorHexColumn    = postgres.StringColumn("color_hex")
 		allColumns        = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn, ColorHexColumn}
 		mutableColumns    = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, UserIDColumn, NameColumn, DescriptionColumn, ColorHexColumn}
+		defaultColumns    = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return categoryTable{
@@ -89,5 +91,6 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
+		DefaultColumns: defaultColumns,
 	}
 }

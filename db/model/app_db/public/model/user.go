@@ -15,4 +15,10 @@ import (
 type User struct {
 	ID        uuid.UUID `sql:"primary_key"`
 	CreatedAt time.Time
+	ClerkID   string
+	Email     string
+	FirstName *string
+	LastName  *string
+	ImageURL  *string
+	UpdatedAt time.Time
 }

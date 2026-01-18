@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
+	"github.com/igorschechtel/clearflow-backend/internal/auth"
 	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
 )
@@ -67,7 +68,11 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Parsing
 	type CreateUserRequest struct {
-		ID string `json:"id" validate:"required,uuid"`
+		ClerkID   string  `json:"clerkId" validate:"required"`
+		Email     string  `json:"email" validate:"required,email"`
+		FirstName *string `json:"firstName"`
+		LastName  *string `json:"lastName"`
+		ImageURL  *string `json:"imageUrl"`
 	}
 
 	var body CreateUserRequest
@@ -82,16 +87,35 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := model.User{
-		ID: uuid.MustParse(body.ID),
+	// Security check: ensure user is authenticated and only creating/updating their own profile
+	authenticatedClerkID, ok := auth.GetUserID(r.Context())
+	if !ok {
+		u.WriteJSONError(w, http.StatusUnauthorized, errors.New("authentication required"))
+		return
+	}
+	if authenticatedClerkID != body.ClerkID {
+		u.WriteJSONError(w, http.StatusForbidden, errors.New("cannot create or update profile for another user"))
+		return
 	}
 
-	// Creating
-	createdUser, err := h.userService.Create(r.Context(), &user)
+	user := model.User{
+		ClerkID:   body.ClerkID,
+		Email:     body.Email,
+		FirstName: body.FirstName,
+		LastName:  body.LastName,
+		ImageURL:  body.ImageURL,
+	}
+
+	// Creating or updating (using Upsert for idempotency)
+	upsertedUser, created, err := h.userService.Upsert(r.Context(), &user)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	u.WriteJSON(w, http.StatusCreated, createdUser)
+	if created {
+		u.WriteJSON(w, http.StatusCreated, upsertedUser)
+	} else {
+		u.WriteJSON(w, http.StatusOK, upsertedUser)
+	}
 }

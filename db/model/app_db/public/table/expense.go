@@ -29,6 +29,7 @@ type expenseTable struct {
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
+	DefaultColumns postgres.ColumnList
 }
 
 type ExpenseTable struct {
@@ -77,6 +78,7 @@ func newExpenseTableImpl(schemaName, tableName, alias string) expenseTable {
 		CategoryIDColumn   = postgres.IntegerColumn("category_id")
 		allColumns         = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, UserIDColumn, AmountColumn, PurchaseDateColumn, BillDateColumn, DescriptionColumn, CategoryIDColumn}
 		mutableColumns     = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, UserIDColumn, AmountColumn, PurchaseDateColumn, BillDateColumn, DescriptionColumn, CategoryIDColumn}
+		defaultColumns     = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return expenseTable{
@@ -95,5 +97,6 @@ func newExpenseTableImpl(schemaName, tableName, alias string) expenseTable {
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
+		DefaultColumns: defaultColumns,
 	}
 }

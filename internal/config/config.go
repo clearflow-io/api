@@ -27,7 +27,8 @@ type ServerConfig struct {
 }
 
 type ClerkConfig struct {
-	SecretKey string
+	SecretKey     string
+	WebhookSecret string
 }
 
 func Load() (*Config, error) {
@@ -52,7 +53,8 @@ func Load() (*Config, error) {
 	}
 
 	clerkConfig := ClerkConfig{
-		SecretKey: getEnv("CLERK_SECRET_KEY", ""),
+		SecretKey:     getEnv("CLERK_SECRET_KEY", ""),
+		WebhookSecret: getEnv("CLERK_WEBHOOK_SECRET", ""),
 	}
 
 	return &Config{
