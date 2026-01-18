@@ -87,9 +87,13 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Security check: ensure user is only creating/updating their own profile
+	// Security check: ensure user is authenticated and only creating/updating their own profile
 	authenticatedClerkID, ok := auth.GetUserID(r.Context())
-	if !ok || authenticatedClerkID != body.ClerkID {
+	if !ok {
+		u.WriteJSONError(w, http.StatusUnauthorized, errors.New("authentication required"))
+		return
+	}
+	if authenticatedClerkID != body.ClerkID {
 		u.WriteJSONError(w, http.StatusForbidden, errors.New("cannot create or update profile for another user"))
 		return
 	}
