@@ -43,7 +43,11 @@ Maintain strict separation between layers:
 - Every schema change must start with a migration in `db/migrations/`.
 - Use the `Makefile` commands (`make migrate-up`, `make migrate-down`) to manage state.
 
-### 2. Type-Safe SQL with Go-Jet
+### 2. Migration Best Practices
+- **Wrap migrations in transactions**: Always use `BEGIN;` at the start and `COMMIT;` at the end of migration files. This ensures atomicity—if any statement fails, the entire migration rolls back, preventing partial/inconsistent states.
+- **Validate before destructive changes**: When adding NOT NULL constraints to existing columns, include a validation check (e.g., a `DO` block that raises an exception if NULL values exist) before the `ALTER COLUMN ... SET NOT NULL`.
+
+### 3. Type-Safe SQL with Go-Jet
 - Always use `Go-Jet`'s generated table and model packages.
 - Regenerate models after every migration using `make jet-generate`.
 - Avoid raw SQL strings unless absolutely necessary for complex performance reasons.

@@ -15,7 +15,7 @@ import (
 type UserRepository interface {
 	List(ctx context.Context, limit, offset int) ([]model.User, error)
 	Create(ctx context.Context, user *model.User) (*model.User, error)
-	Upsert(ctx context.Context, user *model.User) (*model.User, error)
+	Upsert(ctx context.Context, user *model.User) (*model.User, bool, error)
 	DeleteByClerkID(ctx context.Context, clerkID string) error
 	GetInternalIDByClerkID(ctx context.Context, clerkID string) (uuid.UUID, error)
 }
@@ -68,7 +68,7 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) (*model.U
 	return &createdUser, nil
 }
 
-func (r *userRepository) Upsert(ctx context.Context, user *model.User) (*model.User, error) {
+func (r *userRepository) Upsert(ctx context.Context, user *model.User) (*model.User, bool, error) {
 	stmt := table.User.INSERT(
 		table.User.ClerkID,
 		table.User.Email,
@@ -85,6 +85,7 @@ func (r *userRepository) Upsert(ctx context.Context, user *model.User) (*model.U
 			table.User.FirstName.SET(table.User.EXCLUDED.FirstName),
 			table.User.LastName.SET(table.User.EXCLUDED.LastName),
 			table.User.ImageURL.SET(table.User.EXCLUDED.ImageURL),
+			table.User.UpdatedAt.SET(postgres.TimestampExp(postgres.Raw("NOW()"))),
 		),
 	).RETURNING(
 		table.User.AllColumns,
@@ -93,17 +94,35 @@ func (r *userRepository) Upsert(ctx context.Context, user *model.User) (*model.U
 	var upsertedUser model.User
 	err := stmt.QueryContext(ctx, r.db, &upsertedUser)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return &upsertedUser, nil
+	// Determine if this was a create or update by comparing timestamps.
+	// For new inserts, created_at and updated_at will be equal (both set to default CURRENT_TIMESTAMP).
+	// For updates, updated_at will be explicitly set to CURRENT_TIMESTAMP in DO_UPDATE, making it newer.
+	created := upsertedUser.CreatedAt.Equal(upsertedUser.UpdatedAt)
+
+	return &upsertedUser, created, nil
 }
 
 func (r *userRepository) DeleteByClerkID(ctx context.Context, clerkID string) error {
 	stmt := table.User.DELETE().WHERE(table.User.ClerkID.EQ(postgres.String(clerkID)))
 
-	_, err := stmt.ExecContext(ctx, r.db)
-	return err
+	result, err := stmt.ExecContext(ctx, r.db)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return u.ErrNotFound
+	}
+
+	return nil
 }
 
 func (r *userRepository) GetInternalIDByClerkID(ctx context.Context, clerkID string) (uuid.UUID, error) {

@@ -1,3 +1,5 @@
+BEGIN;
+
 -- Drop triggers
 DROP TRIGGER IF EXISTS set_updated_at_expense ON "expense";
 DROP TRIGGER IF EXISTS set_updated_at_category ON "category";
@@ -14,3 +16,5 @@ ALTER TABLE "category" DROP CONSTRAINT IF EXISTS "category_user_id_fkey";
 DROP TABLE IF EXISTS "expense";
 DROP TABLE IF EXISTS "category";
 DROP TABLE IF EXISTS "user";
+
+COMMIT;

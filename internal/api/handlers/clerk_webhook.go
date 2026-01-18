@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
 	svix "github.com/svix/svix-webhooks/go"
+
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
@@ -15,12 +17,14 @@ import (
 type ClerkWebhookHandler struct {
 	userService   services.UserService
 	webhookSecret string
+	logger        *logrus.Logger
 }
 
-func NewClerkWebhookHandler(userService services.UserService, webhookSecret string) *ClerkWebhookHandler {
+func NewClerkWebhookHandler(userService services.UserService, webhookSecret string, logger *logrus.Logger) *ClerkWebhookHandler {
 	return &ClerkWebhookHandler{
 		userService:   userService,
 		webhookSecret: webhookSecret,
+		logger:        logger,
 	}
 }
 
@@ -93,6 +97,12 @@ func (h *ClerkWebhookHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			primaryEmail = event.Data.EmailAddresses[0].EmailAddress
 		}
 
+		// Validate that email exists
+		if primaryEmail == "" {
+			u.WriteJSONError(w, http.StatusBadRequest, errors.New("user must have at least one email address"))
+			return
+		}
+
 		user := model.User{
 			ClerkID:   event.Data.ID,
 			Email:     primaryEmail,
@@ -101,16 +111,18 @@ func (h *ClerkWebhookHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			ImageURL:  event.Data.ImageURL,
 		}
 
-		_, err := h.userService.Upsert(r.Context(), &user)
+		_, _, err := h.userService.Upsert(r.Context(), &user)
 		if err != nil {
-			u.WriteJSONError(w, http.StatusInternalServerError, err)
+			h.logger.WithError(err).WithField("clerk_id", event.Data.ID).Error("failed to upsert user from webhook")
+			u.WriteJSONError(w, http.StatusInternalServerError, errors.New("internal server error"))
 			return
 		}
 
 	case "user.deleted":
 		err := h.userService.DeleteByClerkID(r.Context(), event.Data.ID)
 		if err != nil {
-			u.WriteJSONError(w, http.StatusInternalServerError, err)
+			h.logger.WithError(err).WithField("clerk_id", event.Data.ID).Error("failed to delete user from webhook")
+			u.WriteJSONError(w, http.StatusInternalServerError, errors.New("internal server error"))
 			return
 		}
 

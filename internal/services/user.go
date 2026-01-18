@@ -11,7 +11,7 @@ import (
 type UserService interface {
 	List(ctx context.Context, limit, offset int) ([]model.User, error)
 	Create(ctx context.Context, user *model.User) (*model.User, error)
-	Upsert(ctx context.Context, user *model.User) (*model.User, error)
+	Upsert(ctx context.Context, user *model.User) (*model.User, bool, error)
 	DeleteByClerkID(ctx context.Context, clerkID string) error
 	GetInternalIDByClerkID(ctx context.Context, clerkID string) (uuid.UUID, error)
 }
@@ -34,7 +34,7 @@ func (s *userService) Create(ctx context.Context, user *model.User) (*model.User
 	return s.userRepo.Create(ctx, user)
 }
 
-func (s *userService) Upsert(ctx context.Context, user *model.User) (*model.User, error) {
+func (s *userService) Upsert(ctx context.Context, user *model.User) (*model.User, bool, error) {
 	return s.userRepo.Upsert(ctx, user)
 }
 

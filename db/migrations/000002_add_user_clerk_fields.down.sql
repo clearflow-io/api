@@ -1,3 +1,5 @@
+BEGIN;
+
 -- Remove trigger
 DROP TRIGGER IF EXISTS set_updated_at_user ON "user";
 
@@ -11,3 +13,5 @@ ALTER TABLE "user" DROP COLUMN IF EXISTS "updated_at";
 
 -- Remove default for id
 ALTER TABLE "user" ALTER COLUMN "id" DROP DEFAULT;
+
+COMMIT;

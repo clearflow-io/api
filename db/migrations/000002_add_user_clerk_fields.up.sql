@@ -1,3 +1,5 @@
+BEGIN;
+
 -- Add clerk_id and other fields to user table
 ALTER TABLE "user" ADD COLUMN "clerk_id" TEXT;
 ALTER TABLE "user" ADD COLUMN "email" TEXT;
@@ -20,7 +22,20 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Make clerk_id and email NOT NULL
--- (Assuming no existing data or handling it manually if needed)
--- Since we are in development, this is fine.
+-- First, ensure no NULL values exist (for production safety)
+-- These placeholders should be replaced with actual values or migration should be run
+-- only after ensuring all users have been backfilled via Clerk sync
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM "user" WHERE "clerk_id" IS NULL) THEN
+        RAISE EXCEPTION 'Cannot set clerk_id NOT NULL: existing rows have NULL values. Please backfill data first.';
+    END IF;
+    IF EXISTS (SELECT 1 FROM "user" WHERE "email" IS NULL) THEN
+        RAISE EXCEPTION 'Cannot set email NOT NULL: existing rows have NULL values. Please backfill data first.';
+    END IF;
+END $$;
+
 ALTER TABLE "user" ALTER COLUMN "clerk_id" SET NOT NULL;
 ALTER TABLE "user" ALTER COLUMN "email" SET NOT NULL;
+
+COMMIT;

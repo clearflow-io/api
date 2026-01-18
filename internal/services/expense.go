@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/clearflow-backend/internal/repositories"
@@ -34,7 +35,7 @@ func NewExpenseService(
 func (s *expenseService) ListByUser(ctx context.Context, clerkID string, limit, offset int) ([]model.Expense, error) {
 	userID, err := s.userService.GetInternalIDByClerkID(ctx, clerkID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get internal user ID for clerk %s: %w", clerkID, err)
 	}
 	return s.expenseRepo.ListByUser(ctx, userID, limit, offset)
 }
@@ -42,7 +43,7 @@ func (s *expenseService) ListByUser(ctx context.Context, clerkID string, limit, 
 func (s *expenseService) Create(ctx context.Context, clerkID string, expense *model.Expense) (*model.Expense, error) {
 	userID, err := s.userService.GetInternalIDByClerkID(ctx, clerkID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get internal user ID for clerk %s: %w", clerkID, err)
 	}
 	expense.UserID = userID
 

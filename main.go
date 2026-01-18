@@ -56,12 +56,15 @@ func main() {
 	expenseService := services.NewExpenseService(expenseRepo, categoryRepo, userService)
 	categoryService := services.NewCategoryService(categoryRepo, userService)
 
+	// Logger
+	logger := logrus.StandardLogger()
+
 	// Handlers
 	handlers := &api.Handlers{
 		User:         handlers.NewUserHandler(userService, v),
 		Expense:      handlers.NewExpenseHandler(expenseService, v),
 		Category:     handlers.NewCategoryHandler(categoryService, v),
-		ClerkWebhook: handlers.NewClerkWebhookHandler(userService, cfg.Clerk.WebhookSecret),
+		ClerkWebhook: handlers.NewClerkWebhookHandler(userService, cfg.Clerk.WebhookSecret, logger),
 	}
 	router := api.SetupRouter(cfg, handlers, db)
 

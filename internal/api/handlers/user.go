@@ -102,12 +102,16 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		ImageURL:  body.ImageURL,
 	}
 
-	// Creating (using Upsert for idempotency)
-	createdUser, err := h.userService.Upsert(r.Context(), &user)
+	// Creating or updating (using Upsert for idempotency)
+	upsertedUser, created, err := h.userService.Upsert(r.Context(), &user)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	u.WriteJSON(w, http.StatusCreated, createdUser)
+	if created {
+		u.WriteJSON(w, http.StatusCreated, upsertedUser)
+	} else {
+		u.WriteJSON(w, http.StatusOK, upsertedUser)
+	}
 }
