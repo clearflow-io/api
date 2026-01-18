@@ -66,6 +66,7 @@ Before concluding any task, the following must be verified:
 1. **Dependency Integrity**: Run `go mod tidy` to ensure `go.mod` and `go.sum` are in sync.
 2. **Compilation**: Run `go build` to ensure the project compiles without errors.
 3. **Runtime Smoke Test**: Start the application locally and verify that the `/healthz` endpoint (or the specific endpoint being worked on) responds correctly.
+4. **Documentation**: Always consider if your change requires an update to `README.md` (e.g., new environment variables, setup steps, or architectural changes).
 
 ### 🚀 Implementation Workflow
 - When adding new functionality, follow the strict flow: **Handler -> Service -> Repository**.

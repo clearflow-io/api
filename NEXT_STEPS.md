@@ -10,13 +10,15 @@
 - [x] Add Clerk authentication
 - [x] Change error responses to use `json:"error"` instead of `json:"errors"`
 - [x] Deploy
-  - [ ] Enforce HTTPS
-  - [ ] Add rate limiting
-- [ ] Create CI/CD pipeline with tests
+- [x] Enforce HTTPS
+- [x] Add rate limiting (using `httprate`)
+- [/] Create CI/CD pipeline with tests (Workflow added, branch protection pending)
 
 ## Future improvements
 
 - [ ] Write tests
+- [ ] Enhance logging (capture status codes and response size)
+- [ ] Add security headers (HSTS, CSP, etc.)
 - [ ] Cache API responses when appropriate
 - [ ] Error tracking (Sentry)
 - [ ] Add logging

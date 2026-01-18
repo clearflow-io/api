@@ -15,7 +15,7 @@ graph TD
     Client[Client Browser/App] --> Router[Chi Router]
     subgraph internal_api [Internal API Layer]
         Router --> Auth[Clerk Auth Middleware]
-        Auth --> Handlers[Handlers: Expense, Category, User]
+        Auth --> Handlers[Handlers]
     end
     subgraph business_logic [Business Logic Layer]
         Handlers --> Services[Services]
@@ -35,7 +35,7 @@ graph TD
 
 ### Key Components
 
-- **API Layer**: Built with `go-chi/chi`, providing a lightweight and high-performance RESTful interface.
+- **API Layer**: Built with `go-chi/chi`, providing a lightweight and high-performance RESTful interface. Includes global middleware for **Rate Limiting** (100 req/min) and **HTTPS Enforcement** (in non-local environments).
 - **Authentication**: Secured by `Clerk`, providing robust session management and user identity.
 - **Data Access**: Powered by `go-jet/jet`, ensuring type-safe SQL queries and seamless database mapping.
 - **Validation**: Uses `go-playground/validator` for rigorous request data validation.
@@ -71,6 +71,7 @@ graph TD
    ```env
    DATABASE_URL=postgres://admin:password@localhost:5432/app_db?sslmode=disable
    PORT=8080
+   ENV=local
    ALLOWED_ORIGINS=http://localhost:3000
    CLERK_SECRET_KEY=your_clerk_secret_key
    ```

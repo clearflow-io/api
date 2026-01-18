@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 	"github.com/igorschechtel/clearflow-backend/internal/api/handlers"
 	"github.com/igorschechtel/clearflow-backend/internal/auth"
 	"github.com/igorschechtel/clearflow-backend/internal/config"
@@ -44,6 +45,13 @@ func SetupRouter(
 	// Middlewares
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
+	if cfg.Env != "local" {
+		r.Use(EnforceHTTPS)
+	}
+
+	// Rate limiting: 100 requests per minute per IP
+	r.Use(httprate.LimitByIP(100, 1*time.Minute))
+
 	r.Use(u.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
