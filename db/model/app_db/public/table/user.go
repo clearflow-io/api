@@ -19,9 +19,16 @@ type userTable struct {
 	// Columns
 	ID        postgres.ColumnString
 	CreatedAt postgres.ColumnTimestamp
+	ClerkID   postgres.ColumnString
+	Email     postgres.ColumnString
+	FirstName postgres.ColumnString
+	LastName  postgres.ColumnString
+	ImageURL  postgres.ColumnString
+	UpdatedAt postgres.ColumnTimestamp
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
+	DefaultColumns postgres.ColumnList
 }
 
 type UserTable struct {
@@ -61,8 +68,15 @@ func newUserTableImpl(schemaName, tableName, alias string) userTable {
 	var (
 		IDColumn        = postgres.StringColumn("id")
 		CreatedAtColumn = postgres.TimestampColumn("created_at")
-		allColumns      = postgres.ColumnList{IDColumn, CreatedAtColumn}
-		mutableColumns  = postgres.ColumnList{CreatedAtColumn}
+		ClerkIDColumn   = postgres.StringColumn("clerk_id")
+		EmailColumn     = postgres.StringColumn("email")
+		FirstNameColumn = postgres.StringColumn("first_name")
+		LastNameColumn  = postgres.StringColumn("last_name")
+		ImageURLColumn  = postgres.StringColumn("image_url")
+		UpdatedAtColumn = postgres.TimestampColumn("updated_at")
+		allColumns      = postgres.ColumnList{IDColumn, CreatedAtColumn, ClerkIDColumn, EmailColumn, FirstNameColumn, LastNameColumn, ImageURLColumn, UpdatedAtColumn}
+		mutableColumns  = postgres.ColumnList{CreatedAtColumn, ClerkIDColumn, EmailColumn, FirstNameColumn, LastNameColumn, ImageURLColumn, UpdatedAtColumn}
+		defaultColumns  = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return userTable{
@@ -71,8 +85,15 @@ func newUserTableImpl(schemaName, tableName, alias string) userTable {
 		//Columns
 		ID:        IDColumn,
 		CreatedAt: CreatedAtColumn,
+		ClerkID:   ClerkIDColumn,
+		Email:     EmailColumn,
+		FirstName: FirstNameColumn,
+		LastName:  LastNameColumn,
+		ImageURL:  ImageURLColumn,
+		UpdatedAt: UpdatedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
+		DefaultColumns: defaultColumns,
 	}
 }

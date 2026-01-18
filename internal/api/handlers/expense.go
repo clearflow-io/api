@@ -27,7 +27,7 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, ok := auth.GetUserID(r.Context())
+	clerkID, ok := auth.GetUserID(r.Context())
 	if !ok {
 		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
@@ -58,7 +58,7 @@ func (h *ExpenseHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetching
-	expenses, err := h.expenseService.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
+	expenses, err := h.expenseService.ListByUser(r.Context(), clerkID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
@@ -71,7 +71,7 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, ok := auth.GetUserID(r.Context())
+	clerkID, ok := auth.GetUserID(r.Context())
 	if !ok {
 		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
@@ -109,7 +109,6 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Creating
 	modelExpense := &model.Expense{
-		UserID:       userID,
 		Amount:       reqBody.Amount,
 		Description:  reqBody.Description,
 		PurchaseDate: purchaseDate,
@@ -117,7 +116,7 @@ func (h *ExpenseHandler) Create(w http.ResponseWriter, r *http.Request) {
 		CategoryID:   reqBody.CategoryID,
 	}
 
-	createdExpense, err := h.expenseService.Create(r.Context(), modelExpense)
+	createdExpense, err := h.expenseService.Create(r.Context(), clerkID, modelExpense)
 	if err != nil {
 		if err == u.ErrNotFound {
 			u.WriteJSONError(w, http.StatusNotFound, err)

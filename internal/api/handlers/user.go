@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/igorschechtel/clearflow-backend/db/model/app_db/public/model"
 	"github.com/igorschechtel/clearflow-backend/internal/services"
 	u "github.com/igorschechtel/clearflow-backend/internal/utils"
@@ -67,7 +66,11 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Parsing
 	type CreateUserRequest struct {
-		ID string `json:"id" validate:"required,uuid"`
+		ClerkID   string  `json:"clerkId" validate:"required"`
+		Email     string  `json:"email" validate:"required,email"`
+		FirstName *string `json:"firstName"`
+		LastName  *string `json:"lastName"`
+		ImageURL  *string `json:"imageUrl"`
 	}
 
 	var body CreateUserRequest
@@ -83,11 +86,15 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := model.User{
-		ID: uuid.MustParse(body.ID),
+		ClerkID:   body.ClerkID,
+		Email:     body.Email,
+		FirstName: body.FirstName,
+		LastName:  body.LastName,
+		ImageURL:  body.ImageURL,
 	}
 
-	// Creating
-	createdUser, err := h.userService.Create(r.Context(), &user)
+	// Creating (using Upsert for idempotency)
+	createdUser, err := h.userService.Upsert(r.Context(), &user)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return

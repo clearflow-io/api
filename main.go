@@ -53,14 +53,15 @@ func main() {
 
 	// Services
 	userService := services.NewUserService(userRepo)
-	expenseService := services.NewExpenseService(expenseRepo, categoryRepo)
-	categoryService := services.NewCategoryService(categoryRepo)
+	expenseService := services.NewExpenseService(expenseRepo, categoryRepo, userService)
+	categoryService := services.NewCategoryService(categoryRepo, userService)
 
 	// Handlers
 	handlers := &api.Handlers{
-		User:     handlers.NewUserHandler(userService, v),
-		Expense:  handlers.NewExpenseHandler(expenseService, v),
-		Category: handlers.NewCategoryHandler(categoryService, v),
+		User:         handlers.NewUserHandler(userService, v),
+		Expense:      handlers.NewExpenseHandler(expenseService, v),
+		Category:     handlers.NewCategoryHandler(categoryService, v),
+		ClerkWebhook: handlers.NewClerkWebhookHandler(userService, cfg.Clerk.WebhookSecret),
 	}
 	router := api.SetupRouter(cfg, handlers, db)
 

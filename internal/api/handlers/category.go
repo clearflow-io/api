@@ -26,7 +26,7 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, ok := auth.GetUserID(r.Context())
+	clerkID, ok := auth.GetUserID(r.Context())
 	if !ok {
 		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
@@ -57,7 +57,7 @@ func (h *CategoryHandler) ListByUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetching
-	categories, err := h.categoryService.ListByUser(r.Context(), userID, queryParams.Limit, queryParams.Offset)
+	categories, err := h.categoryService.ListByUser(r.Context(), clerkID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return
@@ -70,7 +70,7 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parsing
-	userID, ok := auth.GetUserID(r.Context())
+	clerkID, ok := auth.GetUserID(r.Context())
 	if !ok {
 		u.WriteJSONError(w, http.StatusUnauthorized, u.ErrUnauthorized)
 		return
@@ -96,13 +96,12 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Creating
 	modelCategory := &model.Category{
-		UserID:      userID,
 		Name:        reqBody.Name,
 		Description: reqBody.Description,
 		ColorHex:    reqBody.ColorHex,
 	}
 
-	createdCategory, err := h.categoryService.Create(r.Context(), modelCategory)
+	createdCategory, err := h.categoryService.Create(r.Context(), clerkID, modelCategory)
 	if err != nil {
 		u.WriteJSONError(w, http.StatusInternalServerError, err)
 		return

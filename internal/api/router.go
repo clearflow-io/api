@@ -17,9 +17,10 @@ import (
 )
 
 type Handlers struct {
-	User     *handlers.UserHandler
-	Expense  *handlers.ExpenseHandler
-	Category *handlers.CategoryHandler
+	User         *handlers.UserHandler
+	Expense      *handlers.ExpenseHandler
+	Category     *handlers.CategoryHandler
+	ClerkWebhook *handlers.ClerkWebhookHandler
 }
 
 func SetupRouter(
@@ -81,6 +82,9 @@ func SetupRouter(
 			r.Get("/", handlers.User.List)
 			r.Post("/", handlers.User.Create)
 		})
+
+		// Clerk Webhook route
+		r.Post("/webhooks/clerk", handlers.ClerkWebhook.Handle)
 
 		// Protected routes
 		protected := r.With(auth.ClerkAuthMiddleware())
