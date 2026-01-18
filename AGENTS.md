@@ -61,11 +61,19 @@ Maintain strict separation between layers:
 
 ## 🤖 AI Interaction Guidelines
 
+### 🚫 Environment Respect
+- **Do not kill user processes**: NEVER use `kill`, `pkill`, or port-clearing commands on ports like `8080` unless explicitly instructed. Assume these are managed by the user.
+- **Dedicated AI Test Port**: Use port **`8081`** for all automated testing.
+    - Start the app using `PORT=8081 ./tmp/main`.
+    - Always kill the process on `8081` immediately after testing is complete.
+    - Example: `PORT=8081 ./tmp/main & sleep 2 && curl http://localhost:8081/healthz && fuser -k 8081/tcp`.
+- **Port Conflicts**: If port `8081` is occupied, report it to the user.
+
 ### 🛠️ Build Safety Checklist
 Before concluding any task, the following must be verified:
 1. **Dependency Integrity**: Run `go mod tidy` to ensure `go.mod` and `go.sum` are in sync.
 2. **Compilation**: Run `go build` to ensure the project compiles without errors.
-3. **Runtime Smoke Test**: Start the application locally and verify that the `/healthz` endpoint (or the specific endpoint being worked on) responds correctly.
+3. **Runtime Smoke Test**: Start the application locally on the test port (**`8081`**) and verify that the `/healthz` endpoint (or the specific endpoint being worked on) responds correctly. Kill the process immediately after.
 4. **Documentation**: Always consider if your change requires an update to `README.md` (e.g., new environment variables, setup steps, or architectural changes).
 
 ### 🚀 Implementation Workflow
