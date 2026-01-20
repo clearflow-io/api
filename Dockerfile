@@ -25,6 +25,6 @@ ENV PORT=8080
 EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1
+  CMD wget --no-verbose --tries=1 -O - http://localhost:8080/healthz || exit 1
 
 CMD ["./main"]
