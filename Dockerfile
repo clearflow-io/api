@@ -1,37 +1,30 @@
-# Build stage
+# Stage 1: Build
 FROM golang:1.25.6-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache git
-
-# Set working directory
 WORKDIR /app
 
-# Copy go mod and sum files
+# Install dependencies
 COPY go.mod go.sum ./
-
-# Download all dependencies
 RUN go mod download
 
-# Copy the source code
+# Copy source code and build
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main main.go
+# Stage 2: Final Image
+FROM alpine:latest  
 
-# Final stage
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates wget
 
 WORKDIR /root/
 
-# Copy the binary from builder
 COPY --from=builder /app/main .
-
-# Copy migrations folder (Required for the app to run migrations on startup)
 COPY --from=builder /app/db/migrations ./db/migrations
 
+ENV PORT=8080
 EXPOSE 8080
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1
 
 CMD ["./main"]
